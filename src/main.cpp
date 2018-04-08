@@ -65,6 +65,8 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   return result;
 }
 
+
+// This function transforms the coodinates from map frame of reference to car's frame of reference
 vector<double> tr_2_car(double psi, double x_c, double y_c, double x_p, double y_p){
 /*
  * Function t2_2_car transforms coordinates from map to car coprdinate system
@@ -112,6 +114,9 @@ int main() {
           *
           */
 
+          // converted the regular waypoints to the car frame
+          // and stored in the 
+
           double *ptr_x = &ptsx[0];
           double *ptr_y = &ptsy[0];
           Eigen::Map<Eigen::VectorXd> ptsx_ev(ptr_x, ptsx.size());
@@ -125,7 +130,6 @@ int main() {
             ptsx_car[i] = temp[0];
             ptsy_car[i] = temp[1];
           }
-
 
 
           // vector<double> waypoints_x;
@@ -146,7 +150,7 @@ int main() {
           // Eigen::Map<Eigen::VectorXd> waypoints_x_eig(ptrx, 6);
           // Eigen::Map<Eigen::VectorXd> waypoints_y_eig(ptry, 6);
 
-          auto coeffs_car = polyfit(ptsx_car, ptsy_car, 3);
+          auto coeffs_car = polyfit(ptsx_car, ptsy_car, 3);   // fit a three degree polynomial
           double cte = polyeval(coeffs_car, 0);  // px = 0, py = 0
           double epsi = -atan(coeffs_car[1]);  // p
 

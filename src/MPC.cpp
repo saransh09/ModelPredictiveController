@@ -7,7 +7,11 @@ using CppAD::AD;
 
 // TODO: Set the timestep length and duration
 size_t N = 10;
-double dt = 0.15;
+double dt = 0.05;
+
+double latency = 0.1;
+
+double dt_with_latency = dt + latency;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -66,7 +70,7 @@ class FG_eval {
 	      fg[0] += 40*CppAD::pow(vars[a_start + t], 2);
   	  }
 	  	
-	  	// for smooth response to the actuators, we will reduce the time between two actuator commands
+	  	// for smooth response to the actuators, we will reduce the difference between two actuator commands
 	  	if(t < N-2){
 	      fg[0] += 200*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
 	      fg[0] += 100*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
@@ -119,12 +123,13 @@ class FG_eval {
       // these to the solver.
 
       // constraits are inserted into the vector, in the correct representation as in the model
-      fg[2 + x_start + i] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
-      fg[2 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[2 + psi_start + i] = psi1 - (psi0 + v0/Lf * delta0 * dt);
-      fg[2 + v_start + i] = v1 - (v0 + a0 * dt);
-      fg[2 + cte_start + i] = cte1 - ((f0 - y0) + v0 * CppAD::sin(epsi0) * dt);
-      fg[2 + epsi_start + i] = epsi1 - (psi0 - psides0 + v0 / Lf * delta0 * dt);
+      // we are taking into consideration the dt values with latency, so we use dt_with_latency
+      fg[2 + x_start + i] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt_with_latency);
+      fg[2 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt_with_latency);
+      fg[2 + psi_start + i] = psi1 - (psi0 + v0/Lf * delta0 * dt_with_latency);
+      fg[2 + v_start + i] = v1 - (v0 + a0 * dt_with_latency);
+      fg[2 + cte_start + i] = cte1 - ((f0 - y0) + v0 * CppAD::sin(epsi0) * dt_with_latency);
+      fg[2 + epsi_start + i] = epsi1 - (psi0 - psides0 + v0 / Lf * delta0 * dt_with_latency);
 
     }
   }
